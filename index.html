@@ -1,568 +1,312 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Sports Betting EV & Monte Carlo Toolkit</title>
   <style>
-    :root{
-      --bg:#0b0d12; --panel:#121623; --ink:#e8ecf3; --muted:#9aa3b2; --accent:#7dd3fc; --good:#22c55e; --bad:#ef4444; --warn:#f59e0b;
-      --br:18px;
-    }
-    *{box-sizing:border-box}
-    body{margin:0; font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji"; background:var(--bg); color:var(--ink);}
-    header{padding:24px 16px 0;}
-    h1{margin:0; font-size:clamp(22px,3.6vw,32px)}
-    p.lead{margin:.4rem 0 1.2rem; color:var(--muted)}
-
-    .wrap{max-width:1100px; margin:0 auto; padding:16px;}
-    .grid{display:grid; gap:16px; grid-template-columns: repeat(12,1fr);} 
-    .card{grid-column: span 12; background:var(--panel); border-radius:var(--br); padding:16px; box-shadow: 0 10px 30px rgba(0,0,0,.25);} 
-    @media (min-width:900px){ .span-6{grid-column: span 6} .span-4{grid-column: span 4} }
-
-    .card h2{margin:.2rem 0 .6rem; font-size:clamp(18px,2.4vw,22px)}
-    .sub{color:var(--muted); margin:0 0 1rem}
-
-    label{display:block; font-size:13px; color:var(--muted); margin:.6rem 0 .25rem}
-    input, select{width:100%; padding:10px 12px; background:#0f1420; color:var(--ink); border:1px solid #1e2636; border-radius:12px; outline:none}
-    input:focus, select:focus{border-color:#2c3a55}
-    .row{display:grid; grid-template-columns:repeat(12,1fr); gap:12px}
-    .col-6{grid-column:span 6} .col-4{grid-column:span 4} .col-3{grid-column:span 3} .col-12{grid-column:span 12}
-    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-    button{padding:10px 14px; border-radius:12px; border:1px solid #2a3347; background:#171e2d; color:var(--ink); cursor:pointer}
-    button.primary{background:linear-gradient(180deg,#1a2438,#0f172a); border-color:#3b445c}
-    button.ghost{background:transparent}
-
-    .grid-2{display:grid; grid-template-columns:1fr; gap:12px}
-    @media(min-width:900px){.grid-2{grid-template-columns:1fr 1fr}}
-
-    .kpi{display:grid; grid-template-columns: 1fr auto; gap:6px; padding:10px 12px; background:#0f1420; border:1px solid #1e2636; border-radius:12px}
-    .kpi .lab{color:var(--muted); font-size:12px}
-    .kpi .val{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-    .kpi.good .val{color:var(--good)}
-    .kpi.bad .val{color:var(--bad)}
-
-    .out{white-space:pre-wrap; background:#0f1420; border:1px solid #1e2636; border-radius:12px; padding:12px; min-height:130px}
-
-    .hint{color:var(--muted); font-size:12px}
-    .hr{height:1px; background:#1e2636; margin:12px 0}
-
-    .badge{display:inline-block; padding:3px 8px; border-radius:999px; border:1px solid #2a3347; background:#11182a; font-size:12px; color:var(--muted)}
-
-    .footer{color:var(--muted); font-size:12px; text-align:center; margin:32px 0;}
-    a{color:var(--accent); text-decoration:none}
-
-    .hist{width:100%; height:220px; display:block; background:#0f1420; border:1px solid #1e2636; border-radius:12px}
+    :root{--bg:#0b0d12;--panel:#121623;--ink:#e8ecf3;--muted:#9aa3b2;--accent:#7dd3fc;--good:#22c55e;--bad:#ef4444;--br:18px}
+    *{box-sizing:border-box}body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Noto Sans,Arial;background:var(--bg);color:var(--ink)}
+    header{padding:24px 16px 0}h1{margin:0;font-size:clamp(22px,3.6vw,32px)}p.lead{margin:.4rem 0 1.2rem;color:var(--muted)}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}.grid{display:grid;gap:16px;grid-template-columns:repeat(12,1fr)}
+    .card{grid-column:span 12;background:var(--panel);border-radius:var(--br);padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    @media(min-width:900px){.span-6{grid-column:span 6}.span-4{grid-column:span 4}}
+    .card h2{margin:.2rem 0 .6rem;font-size:clamp(18px,2.4vw,22px)}.sub{color:var(--muted);margin:0 0 1rem}
+    label{display:block;font-size:13px;color:var(--muted);margin:.6rem 0 .25rem}
+    input,select{width:100%;padding:10px 12px;background:#0f1420;color:var(--ink);border:1px solid #1e2636;border-radius:12px;outline:none}
+    input:focus,select:focus{border-color:#2c3a55}.row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+    .col-6{grid-column:span 6}.col-4{grid-column:span 4}.col-3{grid-column:span 3}.col-12{grid-column:span 12}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}button{padding:10px 14px;border-radius:12px;border:1px solid #2a3347;background:#171e2d;color:var(--ink);cursor:pointer}
+    button.primary{background:linear-gradient(180deg,#1a2438,#0f172a);border-color:#3b445c}.button.ghost{background:transparent}
+    .grid-2{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:900px){.grid-2{grid-template-columns:1fr 1fr}}
+    .kpi{display:grid;grid-template-columns:1fr auto;gap:6px;padding:10px 12px;background:#0f1420;border:1px solid #1e2636;border-radius:12px}
+    .kpi .lab{color:var(--muted);font-size:12px}.kpi .val{font-family:ui-monospace,Menlo,Consolas,monospace}
+    .kpi.good .val{color:var(--good)}.kpi.bad .val{color:var(--bad)}.out{white-space:pre-wrap;background:#0f1420;border:1px solid #1e2636;border-radius:12px;padding:12px;min-height:130px}
+    .hint{color:var(--muted);font-size:12px}.hr{height:1px;background:#1e2636;margin:12px 0}.badge{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid #2a3347;background:#11182a;font-size:12px;color:var(--muted)}
+    .footer{color:var(--muted);font-size:12px;text-align:center;margin:32px 0}.hist{width:100%;height:220px;display:block;background:#0f1420;border:1px solid #1e2636;border-radius:12px}
   </style>
 </head>
 <body>
-  <header class="wrap">
-    <h1>Sports Betting EV & Monte Carlo Toolkit</h1>
-    <p class="lead">Single-file, Netlify-ready. Calculate EV, Kelly stakes, and simulate bankroll outcomes. Extend with more mini-tools easily.</p>
-  </header>
+<header class="wrap">
+  <h1>Sports Betting EV & Monte Carlo Toolkit</h1>
+  <p class="lead">Single-file, Netlify-ready. Calculate EV, Kelly stakes, and simulate bankroll outcomes. Extend with more mini-tools easily.</p>
+</header>
 
-  <main class="wrap grid">
+<main class="wrap grid">
+  <section class="card span-6">
+    <h2>1) EV & Kelly Calculator</h2>
+    <p class="sub">Enter your edge and see fair odds, expected value, and optimal (Kelly) fraction.</p>
+    <div class="row">
+      <div class="col-6"><label>Decimal odds</label><input id="odds" type="number" step="0.01" min="1.01" value="2.10"/></div>
+      <div class="col-6"><label>Your win probability (%)</label><input id="p" type="number" step="0.1" min="0" max="100" value="52"/></div>
+      <div class="col-6"><label>Bankroll (£)</label><input id="bankroll" type="number" step="1" min="1" value="1000"/></div>
+      <div class="col-6"><label>Kelly fraction cap (0–1)</label><input id="kellyCap" type="number" step="0.05" min="0" max="1" value="0.5"/></div>
+    </div>
+    <div class="actions">
+      <button id="calcEV" class="primary">Calculate</button>
+      <span class="badge" id="kellyNote">Using full Kelly (capped at 0.5)</span>
+    </div>
+    <div class="hr"></div>
+    <div class="grid-2">
+      <div class="kpi"><div class="lab">Implied probability</div><div class="val" id="implied">—</div></div>
+      <div class="kpi"><div class="lab">Fair odds (your p)</div><div class="val" id="fair">—</div></div>
+      <div class="kpi"><div class="lab">Edge (p − 1/odds)</div><div class="val" id="edge">—</div></div>
+      <div class="kpi"><div class="lab">EV per £1 stake</div><div class="val" id="ev">—</div></div>
+      <div class="kpi"><div class="lab">Kelly fraction</div><div class="val" id="kelly">—</div></div>
+      <div class="kpi"><div class="lab">Kelly stake (capped)</div><div class="val" id="kellyStake">—</div></div>
+    </div>
+  </section>
 
-    <!-- EV & Kelly Calculator -->
-    <section class="card span-6">
-      <h2>1) EV & Kelly Calculator</h2>
-      <p class="sub">Enter your edge and see fair odds, expected value, and optimal (Kelly) fraction.</p>
+  <section class="card span-6">
+    <h2>2) Monte Carlo Simulator</h2>
+    <p class="sub">Simulate bankroll outcomes over multiple bets using flat or Kelly staking.</p>
+    <div class="row">
+      <div class="col-4"><label>Start bankroll (£)</label><input id="mcBankroll" type="number" step="1" min="1" value="1000"/></div>
+      <div class="col-4"><label>Bets per run</label><select id="mcBets"><option>10</option><option selected>100</option><option>1000</option></select></div>
+      <div class="col-4"><label>Runs (trials)</label><select id="mcTrials"><option>500</option><option selected>5000</option><option>10000</option></select></div>
+      <div class="col-4"><label>Decimal odds</label><input id="mcOdds" type="number" step="0.01" min="1.01" value="2.10"/></div>
+      <div class="col-4"><label>Your win probability (%)</label><input id="mcP" type="number" step="0.1" min="0" max="100" value="52"/></div>
+      <div class="col-4"><label>Stake type</label><select id="mcStakeType"><option value="flat">Flat £ stake</option><option value="kelly" selected>Kelly (fraction of bankroll)</option></select></div>
+      <div class="col-4" id="flatWrap" style="display:none"><label>Flat stake (£)</label><input id="mcFlat" type="number" step="1" min="1" value="20"/></div>
+      <div class="col-4" id="kellyWrap"><label>Kelly fraction (0–1)</label><input id="mcFrac" type="number" step="0.05" min="0" max="1" value="0.5"/></div>
+      <div class="col-4"><label>Seed (blank = random)</label><input id="mcSeed" type="number" step="1" placeholder="e.g. 42"/></div>
+    </div>
+    <div class="actions">
+      <button id="runMC" class="primary">Run simulation</button>
+      <button id="csv" class="ghost">Download CSV</button>
+    </div>
+    <div class="hr"></div>
+    <canvas id="hist" class="hist" aria-label="Histogram of ending bankrolls"></canvas>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="kpi"><div class="lab">Mean end bankroll</div><div class="val" id="mean">—</div></div>
+      <div class="kpi"><div class="lab">Median end bankroll</div><div class="val" id="median">—</div></div>
+      <div class="kpi"><div class="lab">5th / 95th pct</div><div class="val" id="pcts">—</div></div>
+      <div class="kpi"><div class="lab">Risk of ruin (≤ £1)</div><div class="val" id="ror">—</div></div>
+    </div>
+    <div class="out" id="mcOut" aria-live="polite"></div>
+  </section>
 
-      <div class="row">
-        <div class="col-6">
-          <label for="odds">Decimal odds</label>
-          <input id="odds" type="number" step="0.01" min="1.01" value="2.10" />
+  <section class="card span-12">
+    <h2>3) Add-on Tools (Scaffold)</h2>
+    <p class="sub">Drop-in panels you can flesh out later.</p>
+    <div class="grid-2">
+      <div>
+        <div class="badge">Arbitrage Split</div>
+        <div class="row">
+          <div class="col-6"><label>Book A odds</label><input id="arbA" type="number" step="0.01" min="1.01" value="2.05"/></div>
+          <div class="col-6"><label>Book B odds</label><input id="arbB" type="number" step="0.01" min="1.01" value="2.05"/></div>
+          <div class="col-6"><label>Total stake (£)</label><input id="arbStake" type="number" step="1" min="1" value="100"/></div>
         </div>
-        <div class="col-6">
-          <label for="p">Your win probability (%)</label>
-          <input id="p" type="number" step="0.1" min="0" max="100" value="52" />
-        </div>
-        <div class="col-6">
-          <label for="bankroll">Bankroll (£)</label>
-          <input id="bankroll" type="number" step="1" min="1" value="1000" />
-        </div>
-        <div class="col-6">
-          <label for="kellyCap">Kelly fraction cap (0–1)</label>
-          <input id="kellyCap" type="number" step="0.05" min="0" max="1" value="0.5" />
-        </div>
+        <div class="actions"><button id="calcArb" class="ghost">Check & Split</button></div>
+        <div class="out" id="arbOut"></div>
       </div>
-      <div class="actions">
-        <button id="calcEV" class="primary">Calculate</button>
-        <span class="badge" id="kellyNote">Using full Kelly (capped at 0.5)</span>
+      <div>
+        <div class="badge">Hedge Calculator</div>
+        <div class="row">
+          <div class="col-6"><label>Original bet: odds</label><input id="hedgeOrigOdds" type="number" step="0.01" min="1.01" value="3.50"/></div>
+          <div class="col-6"><label>Original stake (£)</label><input id="hedgeOrigStake" type="number" step="1" min="1" value="50"/></div>
+          <div class="col-6"><label>Live counter-odds</label><input id="hedgeLiveOdds" type="number" step="0.01" min="1.01" value="1.60"/></div>
+        </div>
+        <div class="actions"><button id="calcHedge" class="ghost">Compute Hedge</button></div>
+        <div class="out" id="hedgeOut"></div>
       </div>
-      <div class="hr"></div>
-      <div class="grid-2">
-        <div class="kpi">
-          <div class="lab">Implied probability</div>
-          <div class="val" id="implied">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">Fair odds (your p)</div>
-          <div class="val" id="fair">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">Edge (p − 1/odds)</div>
-          <div class="val" id="edge">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">EV per £1 stake</div>
-          <div class="val" id="ev">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">Kelly fraction</div>
-          <div class="val" id="kelly">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">Kelly stake (capped)</div>
-          <div class="val" id="kellyStake">—</div>
-        </div>
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Monte Carlo Simulator -->
-    <section class="card span-6">
-      <h2>2) Monte Carlo Simulator</h2>
-      <p class="sub">Simulate bankroll outcomes over multiple bets using flat or Kelly staking.</p>
+  <section class="card span-12">
+    <h2>4) Poisson Scoreline Model</h2>
+    <p class="sub">Independent Poisson goals per side.</p>
+    <div class="row">
+      <div class="col-3"><label>Home λ</label><input id="poisHome" type="number" step="0.05" min="0" value="1.6"/></div>
+      <div class="col-3"><label>Away λ</label><input id="poisAway" type="number" step="0.05" min="0" value="1.2"/></div>
+      <div class="col-3"><label>Max goals per side</label><input id="poisMax" type="number" step="1" min="4" value="8"/></div>
+      <div class="col-3"><label>Top N scorelines</label><input id="poisTopN" type="number" step="1" min="3" value="6"/></div>
+    </div>
+    <div class="actions"><button id="runPois" class="primary">Compute</button></div>
+    <div class="hr"></div>
+    <div class="grid-2">
+      <div class="kpi"><div class="lab">Home win</div><div class="val" id="poisHomeWin">—</div></div>
+      <div class="kpi"><div class="lab">Draw</div><div class="val" id="poisDraw">—</div></div>
+      <div class="kpi"><div class="lab">Away win</div><div class="val" id="poisAwayWin">—</div></div>
+      <div class="kpi"><div class="lab">Over 2.5 goals</div><div class="val" id="poisOver25">—</div></div>
+    </div>
+    <div class="out" id="poisOut"></div>
+  </section>
 
-      <div class="row">
-        <div class="col-4">
-          <label for="mcBankroll">Start bankroll (£)</label>
-          <input id="mcBankroll" type="number" step="1" min="1" value="1000" />
-        </div>
-        <div class="col-4">
-          <label for="mcBets">Bets per run</label>
-          <select id="mcBets">
-            <option>10</option>
-            <option selected>100</option>
-            <option>1000</option>
-          </select>
-        </div>
-        <div class="col-4">
-          <label for="mcTrials">Runs (trials)</label>
-          <select id="mcTrials">
-            <option>500</option>
-            <option selected>5000</option>
-            <option>10000</option>
-          </select>
-        </div>
-        <div class="col-4">
-          <label for="mcOdds">Decimal odds</label>
-          <input id="mcOdds" type="number" step="0.01" min="1.01" value="2.10" />
-        </div>
-        <div class="col-4">
-          <label for="mcP">Your win probability (%)</label>
-          <input id="mcP" type="number" step="0.1" min="0" max="100" value="52" />
-        </div>
-        <div class="col-4">
-          <label for="mcStakeType">Stake type</label>
-          <select id="mcStakeType">
-            <option value="flat">Flat £ stake</option>
-            <option value="kelly" selected>Kelly (fraction of bankroll)</option>
-          </select>
-        </div>
-        <div class="col-4" id="flatWrap" style="display:none">
-          <label for="mcFlat">Flat stake (£)</label>
-          <input id="mcFlat" type="number" step="1" min="1" value="20" />
-        </div>
-        <div class="col-4" id="kellyWrap">
-          <label for="mcFrac">Kelly fraction (0–1)</label>
-          <input id="mcFrac" type="number" step="0.05" min="0" max="1" value="0.5" />
-        </div>
-        <div class="col-4">
-          <label for="mcSeed">Seed (blank = random)</label>
-          <input id="mcSeed" type="number" step="1" placeholder="e.g. 42" />
-        </div>
-      </div>
-      <div class="actions">
-        <button id="runMC" class="primary">Run simulation</button>
-        <button id="csv" class="ghost">Download CSV</button>
-      </div>
-      <div class="hr"></div>
-      <canvas id="hist" class="hist" aria-label="Histogram of ending bankrolls"></canvas>
-      <div class="grid-2" style="margin-top:12px">
-        <div class="kpi"><div class="lab">Mean end bankroll</div><div class="val" id="mean">—</div></div>
-        <div class="kpi"><div class="lab">Median end bankroll</div><div class="val" id="median">—</div></div>
-        <div class="kpi"><div class="lab">5th / 95th pct</div><div class="val" id="pcts">—</div></div>
-        <div class="kpi"><div class="lab">Risk of ruin (≤ £1)</div><div class="val" id="ror">—</div></div>
-      </div>
-      <div class="out" id="mcOut" aria-live="polite"></div>
-    </section>
+  <section class="card span-12">
+    <h2>5) Normal Distribution & Overdispersion</h2>
+    <p class="sub">Add extra variance for fatter distributions (e.g., NFL passing yards).</p>
+    <div class="row">
+      <div class="col-3"><label>Mean (μ)</label><input id="normMu" type="number" step="0.1" value="250"/></div>
+      <div class="col-3"><label>Std dev (σ)</label><input id="normSigma" type="number" step="0.1" min="0.01" value="60"/></div>
+      <div class="col-3"><label>Extra variance (add)</label><input id="normExtraVar" type="number" step="1" min="0" value="900"/></div>
+      <div class="col-3"><label>Threshold T₁</label><input id="normT1" type="number" step="1" value="300"/></div>
+      <div class="col-3"><label>Threshold T₂</label><input id="normT2" type="number" step="1" value="400"/></div>
+    </div>
+    <div class="actions">
+      <button id="runNorm" class="primary">Compute</button>
+      <span class="badge" id="normBadge">σₑff = √(σ² + extraVar)</span>
+    </div>
+    <div class="hr"></div>
+    <div class="grid-2">
+      <div class="kpi"><div class="lab">Effective σ</div><div class="val" id="normSigmaEff">—</div></div>
+      <div class="kpi"><div class="lab">P(X ≥ T₁)</div><div class="val" id="normGE">—</div></div>
+      <div class="kpi"><div class="lab">P(T₁ ≤ X ≤ T₂)</div><div class="val" id="normBetween">—</div></div>
+      <div class="kpi"><div class="lab">Quantiles (5/50/95)</div><div class="val" id="normQuants">—</div></div>
+    </div>
+    <div class="out" id="normOut"></div>
+  </section>
+</main>
 
-    <!-- More tools scaffold -->
-    <section class="card span-12">
-      <h2>3) Add-on Tools (Scaffold)</h2>
-      <p class="sub">Drop-in panels you can flesh out later. They’re wired and styled but minimal by design.</p>
-      <div class="grid-2">
-        <div>
-          <div class="badge">Arbitrage Split</div>
-          <div class="row">
-            <div class="col-6"><label>Book A odds</label><input id="arbA" type="number" step="0.01" min="1.01" value="2.05"/></div>
-            <div class="col-6"><label>Book B odds</label><input id="arbB" type="number" step="0.01" min="1.01" value="2.05"/></div>
-            <div class="col-6"><label>Total stake (£)</label><input id="arbStake" type="number" step="1" min="1" value="100"/></div>
-          </div>
-          <div class="actions"><button id="calcArb" class="ghost">Check & Split</button></div>
-          <div class="out" id="arbOut"></div>
-        </div>
-        <div>
-          <div class="badge">Hedge Calculator</div>
-          <div class="row">
-            <div class="col-6"><label>Original bet: odds</label><input id="hedgeOrigOdds" type="number" step="0.01" min="1.01" value="3.50"/></div>
-            <div class="col-6"><label>Original stake (£)</label><input id="hedgeOrigStake" type="number" step="1" min="1" value="50"/></div>
-            <div class="col-6"><label>Live counter-odds</label><input id="hedgeLiveOdds" type="number" step="0.01" min="1.01" value="1.60"/></div>
-          </div>
-          <div class="actions"><button id="calcHedge" class="ghost">Compute Hedge</button></div>
-          <div class="out" id="hedgeOut"></div>
-        </div>
-      </div>
-    </section>
-
-      <!-- Poisson Scoreline Model -->
-    <section class="card span-12">
-      <h2>4) Poisson Scoreline Model</h2>
-      <p class="sub">Estimate win/draw/lose probabilities and most likely scorelines using independent Poisson goals for each team.</p>
-      <div class="row">
-        <div class="col-3"><label>Home λ (avg goals)</label><input id="poisHome" type="number" step="0.05" min="0" value="1.6"/></div>
-        <div class="col-3"><label>Away λ (avg goals)</label><input id="poisAway" type="number" step="0.05" min="0" value="1.2"/></div>
-        <div class="col-3"><label>Max goals per side</label><input id="poisMax" type="number" step="1" min="4" value="8"/></div>
-        <div class="col-3"><label>Show top N scorelines</label><input id="poisTopN" type="number" step="1" min="3" value="6"/></div>
-      </div>
-      <div class="actions">
-        <button id="runPois" class="primary">Compute</button>
-      </div>
-      <div class="hr"></div>
-      <div class="grid-2">
-        <div class="kpi"><div class="lab">Home win</div><div class="val" id="poisHomeWin">—</div></div>
-        <div class="kpi"><div class="lab">Draw</div><div class="val" id="poisDraw">—</div></div>
-        <div class="kpi"><div class="lab">Away win</div><div class="val" id="poisAwayWin">—</div></div>
-        <div class="kpi"><div class="lab">Over 2.5 goals</div><div class="val" id="poisOver25">—</div></div>
-      </div>
-      <div class="out" id="poisOut"></div>
-    </section>
-
-    <!-- Normal Distribution / Overdispersion -->
-    <section class="card span-12">
-      <h2>5) Normal Distribution & Overdispersion</h2>
-      <p class="sub">Quick probabilities and quantiles with adjustable variance. Useful for stats like NFL passing yards where variance can exceed simple assumptions.</p>
-      <div class="row">
-        <div class="col-3"><label>Mean (μ)</label><input id="normMu" type="number" step="0.1" value="250"/></div>
-        <div class="col-3"><label>Std dev (σ)</label><input id="normSigma" type="number" step="0.1" min="0.01" value="60"/></div>
-        <div class="col-3"><label>Extra variance (add)</label><input id="normExtraVar" type="number" step="1" min="0" value="900"/></div>
-        <div class="col-3"><label>Threshold T₁</label><input id="normT1" type="number" step="1" value="300"/></div>
-        <div class="col-3"><label>Threshold T₂ (optional)</label><input id="normT2" type="number" step="1" value="400"/></div>
-      </div>
-      <div class="actions">
-        <button id="runNorm" class="primary">Compute</button>
-        <span class="badge" id="normBadge">σₑff = √(σ² + extraVar)</span>
-      </div>
-      <div class="hr"></div>
-      <div class="grid-2">
-        <div class="kpi"><div class="lab">Effective σ</div><div class="val" id="normSigmaEff">—</div></div>
-        <div class="kpi"><div class="lab">P(X ≥ T₁)</div><div class="val" id="normGE">—</div></div>
-        <div class="kpi"><div class="lab">P(T₁ ≤ X ≤ T₂)</div><div class="val" id="normBetween">—</div></div>
-        <div class="kpi"><div class="lab">Quantiles (5/50/95)</div><div class="val" id="normQuants">—</div></div>
-      </div>
-      <div class="out" id="normOut"></div>
-    </section>
-
-  </main>
-
-  <div class="footer wrap">Single-file app • No dependencies • Built for Netlify. Extend freely.</div>
+<div class="footer wrap">Single-file app • No dependencies • Built for Netlify. Extend freely.</div>
 
 <script>
-// ---------- Utilities ----------
+console.log('App loaded OK');
+// helpers
 function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
 function fmt(n,dp=2){if(!isFinite(n)) return '—'; return Number(n).toLocaleString(undefined,{minimumFractionDigits:dp, maximumFractionDigits:dp})}
-function pct(x,dp=1){return isFinite(x)? (x*100).toFixed(dp)+'%':'—'}
-function quantile(sortedArr,q){const pos=(sortedArr.length-1)*q; const base=Math.floor(pos); const rest=pos-base; if(sortedArr[base+1]!==undefined){return sortedArr[base]+rest*(sortedArr[base+1]-sortedArr[base])} else {return sortedArr[base]}}
+function pct(x,dp=1){return isFinite(x)?(x*100).toFixed(dp)+'%':'—'}
+function quantile(sortedArr,q){const pos=(sortedArr.length-1)*q; const base=Math.floor(pos); const rest=pos-base; if(sortedArr[base+1]!==undefined){return sortedArr[base]+rest*(sortedArr[base+1]-sortedArr[base])} return sortedArr[base]}
+// RNG
+function mulberry32(seed){let t=seed>>>0;return function(){t+=0x6D2B79F5;let r=Math.imul(t^t>>>15,1|t);r^=r+Math.imul(r^r>>>7,61|r);return((r^r>>>14)>>>0)/4294967296}}
 
-// Deterministic RNG (mulberry32)
-function mulberry32(seed){ let t = seed >>> 0; return function(){ t += 0x6D2B79F5; let r = Math.imul(t ^ t >>> 15, 1 | t); r ^= r + Math.imul(r ^ r >>> 7, 61 | r); return ((r ^ r >>> 14) >>> 0) / 4294967296; } }
-
-// ---------- EV & Kelly ----------
+// EV & Kelly
 function calcEVKelly(){
-  const odds = parseFloat(document.getElementById('odds').value);
-  const p = clamp(parseFloat(document.getElementById('p').value)/100, 0, 1);
-  const br = Math.max(1, parseFloat(document.getElementById('bankroll').value));
-  const cap = clamp(parseFloat(document.getElementById('kellyCap').value)||0, 0, 1);
-
-  const implied = 1/odds; // market's prob
-  const b = odds - 1;     // net odds
-  const q = 1 - p;
-  const evPer1 = p*b - q; // EV per £1 stake
-  const fairOdds = (p>0? 1/p : Infinity);
-  const edge = p - implied;
-  let kelly = (b>0? ( (b*p - q) / b ) : 0); // Kelly fraction = (bp - q)/b
-  if (!isFinite(kelly)) kelly = 0;
-  const kCap = clamp(kelly, 0, cap);
-  const stake = br * kCap;
-
-  document.getElementById('implied').textContent = pct(implied);
-  document.getElementById('fair').textContent = isFinite(fairOdds)? fmt(fairOdds,2) : '∞';
-  document.getElementById('edge').textContent = (edge>=0? '+' : '') + pct(edge);
-  document.getElementById('ev').textContent = (evPer1>=0? '+' : '') + '£' + fmt(evPer1,2);
-  const kEl = document.getElementById('kelly');
-  kEl.textContent = pct(kelly);
-  kEl.parentElement.classList.toggle('good', kelly>0);
-  kEl.parentElement.classList.toggle('bad', kelly<=0);
-  document.getElementById('kellyStake').textContent = '£' + fmt(stake,2);
-  document.getElementById('kellyNote').textContent = `Using full Kelly (capped at ${cap})`;
+  const odds=parseFloat(document.getElementById('odds').value);
+  const p=clamp(parseFloat(document.getElementById('p').value)/100,0,1);
+  const br=Math.max(1,parseFloat(document.getElementById('bankroll').value));
+  const cap=clamp(parseFloat(document.getElementById('kellyCap').value)||0,0,1);
+  const implied=1/odds, b=odds-1, q=1-p, evPer1=p*b-q, fairOdds=(p>0?1/p:Infinity), edge=p-implied;
+  let kelly=(b>0?((b*p-q)/b):0); if(!isFinite(kelly)) kelly=0;
+  const kCap=clamp(kelly,0,cap), stake=br*kCap;
+  document.getElementById('implied').textContent=pct(implied);
+  document.getElementById('fair').textContent=isFinite(fairOdds)?fmt(fairOdds,2):'∞';
+  document.getElementById('edge').textContent=(edge>=0?'+':'')+pct(edge);
+  document.getElementById('ev').textContent=(evPer1>=0?'+':'')+'£'+fmt(evPer1,2);
+  const kEl=document.getElementById('kelly'); kEl.textContent=pct(kelly); kEl.parentElement.classList.toggle('good',kelly>0); kEl.parentElement.classList.toggle('bad',kelly<=0);
+  document.getElementById('kellyStake').textContent='£'+fmt(stake,2);
+  document.getElementById('kellyNote').textContent=`Using full Kelly (capped at ${cap})`;
 }
 
-// ---------- Monte Carlo ----------
+// Monte Carlo
 function runMonteCarlo(){
-  const start = Math.max(1, parseFloat(document.getElementById('mcBankroll').value));
-  const bets = parseInt(document.getElementById('mcBets').value,10);
-  const trials = parseInt(document.getElementById('mcTrials').value,10);
-  const odds = parseFloat(document.getElementById('mcOdds').value);
-  const p = clamp(parseFloat(document.getElementById('mcP').value)/100,0,1);
-  const stakeType = document.getElementById('mcStakeType').value;
-  const flat = Math.max(0, parseFloat(document.getElementById('mcFlat').value)||0);
-  const frac = clamp(parseFloat(document.getElementById('mcFrac').value)||0,0,1);
-  const seedInput = document.getElementById('mcSeed').value.trim();
-  const rng = seedInput? mulberry32(parseInt(seedInput,10)>>>0) : Math.random;
-
-  const b = odds-1, q=1-p;
-  const end = new Array(trials);
-  let ruinCount = 0;
-  const logLines = [];
-
-  for (let t=0;t<trials;t++){
-    let br = start;
-    for (let i=0;i<bets;i++){
-      let stake = (stakeType==='flat')? flat : br * frac;
-      stake = Math.max(0, Math.min(stake, br)); // can't bet more than bankroll
-      if (stake <= 0.000001) { /* broke or zero stake */ }
-      const u = rng();
-      if (u < p){
-        br += stake * b; // win: profit = stake*(odds-1)
-      } else {
-        br -= stake;     // lose stake
-      }
-      if (br<=1){ /* near-ruin */ }
-    }
-    if (br<=1) ruinCount++;
-    end[t]=br;
-  }
-
+  const start=Math.max(1,parseFloat(document.getElementById('mcBankroll').value));
+  const bets=parseInt(document.getElementById('mcBets').value,10);
+  const trials=parseInt(document.getElementById('mcTrials').value,10);
+  const odds=parseFloat(document.getElementById('mcOdds').value);
+  const p=clamp(parseFloat(document.getElementById('mcP').value)/100,0,1);
+  const stakeType=document.getElementById('mcStakeType').value;
+  const flat=Math.max(0,parseFloat(document.getElementById('mcFlat').value)||0);
+  const frac=clamp(parseFloat(document.getElementById('mcFrac').value)||0,0,1);
+  const seedInput=document.getElementById('mcSeed').value.trim();
+  const rng=seedInput?mulberry32(parseInt(seedInput,10)>>>0):Math.random;
+  const b=odds-1; const end=new Array(trials); let ruinCount=0;
+  for(let t=0;t<trials;t++){ let br=start; for(let i=0;i<bets;i++){ let stake=(stakeType==='flat')?flat:br*frac; stake=Math.max(0,Math.min(stake,br)); const u=rng(); if(u<p){ br+=stake*b;} else { br-=stake;} } if(br<=1) ruinCount++; end[t]=br;}
   end.sort((a,b)=>a-b);
-  const mean = end.reduce((s,x)=>s+x,0)/trials;
-  const med = quantile(end, 0.5);
-  const p5 = quantile(end, 0.05);
-  const p95 = quantile(end, 0.95);
-  const ror = ruinCount / trials;
-
-  document.getElementById('mean').textContent = '£'+fmt(mean,2);
-  document.getElementById('median').textContent = '£'+fmt(med,2);
-  document.getElementById('pcts').textContent = '£'+fmt(p5,2)+' / £'+fmt(p95,2);
-  document.getElementById('ror').textContent = pct(ror,1);
-
-  // quick histogram draw
-  drawHist(end, start);
-
-  const evPer1 = p*b - q;
-  const stakingDesc = (stakeType==='flat')? `Flat £${fmt(flat,0)}` : `${fmt(frac*100,0)}% Kelly`;
-  const seedDesc = seedInput? `seed=${seedInput}` : 'seed=random';
-  const summary = [
+  const mean=end.reduce((s,x)=>s+x,0)/trials, med=quantile(end,.5), p5=quantile(end,.05), p95=quantile(end,.95), ror=ruinCount/trials;
+  document.getElementById('mean').textContent='£'+fmt(mean,2);
+  document.getElementById('median').textContent='£'+fmt(med,2);
+  document.getElementById('pcts').textContent='£'+fmt(p5,2)+' / £'+fmt(p95,2);
+  document.getElementById('ror').textContent=pct(ror,1);
+  drawHist(end,start);
+  const evPer1=p*(odds-1)-(1-p);
+  const stakingDesc=(stakeType==='flat')?`Flat £${fmt(flat,0)}`:`${fmt(frac*100,0)}% Kelly`;
+  const seedDesc=seedInput?`seed=${seedInput}`:'seed=random';
+  document.getElementById('mcOut').textContent=[
     `Runs: ${trials} • Bets/run: ${bets} • ${stakingDesc} • ${seedDesc}`,
-    `Odds: ${odds.toFixed(2)} • p: ${(p*100).toFixed(1)}% • EV/£: ${(evPer1>=0?'+':'')+fmt(evPer1,4)}`,
-    `End bankroll (mean/median): £${fmt(mean)} / £${fmt(med)} | 5th–95th: £${fmt(p5)}–£${fmt(p95)} | Ruin: ${pct(ror)}`
+    `Odds: ${odds.toFixed(2)} • p: ${(p*100).toFixed(1)}% • EV/£: ${(evPer1>=0?'+':'')+fmt(evPer1,4)}`
   ].join('\n');
-  document.getElementById('mcOut').textContent = summary;
-
-  // keep last series for CSV
-  window._lastMC = { end, bets, trials, odds, p, start, stakeType, flat, frac };
+  window._lastMC={end,bets,trials,odds,p,start,stakeType,flat,frac};
+}
+function drawHist(sortedVals,start){
+  const cvs=document.getElementById('hist'), ctx=cvs.getContext('2d');
+  const W=cvs.width=cvs.clientWidth*devicePixelRatio, H=cvs.height=cvs.clientHeight*devicePixelRatio; ctx.clearRect(0,0,W,H);
+  if(!sortedVals||!sortedVals.length) return; const n=sortedVals.length, min=sortedVals[0], max=sortedVals[n-1];
+  const bins=Math.max(10,Math.min(60,Math.round(Math.sqrt(n)))), counts=new Array(bins).fill(0);
+  for(let i=0;i<n;i++){ const x=sortedVals[i]; let bIdx=Math.floor(((x-min)/(max-min+1e-9))*bins); if(bIdx>=bins)bIdx=bins-1; if(bIdx<0)bIdx=0; counts[bIdx]++; }
+  const maxC=Math.max(...counts); ctx.fillStyle='#2a3347'; ctx.fillRect(0,H-2,W,2);
+  const pad=24*devicePixelRatio, bw=(W-pad*2)/bins; for(let i=0;i<bins;i++){ const h=(H-40)*(counts[i]/maxC), x=pad+i*bw, y=H-2-h; ctx.fillStyle='#23304a'; ctx.fillRect(x,y,bw*.9,h); }
+  const xStart=pad+((start-min)/(max-min+1e-9))*(W-pad*2); ctx.strokeStyle='#7dd3fc'; ctx.lineWidth=2*devicePixelRatio; ctx.beginPath(); ctx.moveTo(xStart,8); ctx.lineTo(xStart,H-8); ctx.stroke();
 }
 
-function drawHist(sortedVals, start){
-  const cvs = document.getElementById('hist');
-  const ctx = cvs.getContext('2d');
-  const W = cvs.width = cvs.clientWidth * devicePixelRatio;
-  const H = cvs.height = cvs.clientHeight * devicePixelRatio;
-  ctx.clearRect(0,0,W,H);
-
-  if (!sortedVals || !sortedVals.length){ return; }
-  const n = sortedVals.length;
-  const min = sortedVals[0], max = sortedVals[n-1];
-  const bins = Math.max(10, Math.min(60, Math.round(Math.sqrt(n))));
-  const counts = new Array(bins).fill(0);
-  for (let i=0;i<n;i++){
-    const x = sortedVals[i];
-    let bIdx = Math.floor(((x-min)/(max-min+1e-9))*bins);
-    if (bIdx>=bins) bIdx=bins-1; if (bIdx<0) bIdx=0;
-    counts[bIdx]++;
-  }
-  const maxC = Math.max(...counts);
-
-  // axes
-  ctx.fillStyle = '#2a3347';
-  ctx.fillRect(0,H-2,W,2);
-
-  // bars
-  const pad = 24 * devicePixelRatio;
-  const bw = (W - pad*2)/bins;
-  for (let i=0;i<bins;i++){
-    const h = (H-40) * (counts[i]/maxC);
-    const x = pad + i*bw;
-    const y = H-2-h;
-    ctx.fillStyle = '#23304a';
-    ctx.fillRect(x, y, bw*0.9, h);
-  }
-
-  // start bankroll line
-  const xStart = pad + ( (start - min) / (max - min + 1e-9) ) * (W - pad*2);
-  ctx.strokeStyle = '#7dd3fc';
-  ctx.lineWidth = 2*devicePixelRatio;
-  ctx.beginPath(); ctx.moveTo(xStart, 8); ctx.lineTo(xStart, H-8); ctx.stroke();
-}
-
-function downloadCSV(){
-  if(!window._lastMC){ alert('Run a simulation first.'); return; }
-  const { end, trials, bets, odds, p, start, stakeType, flat, frac } = window._lastMC;
-  const header = `trials,bets,odds,p,start,stakeType,flat,frac\n${trials},${bets},${odds},${p},${start},${stakeType},${flat},${frac}\nvalue\n`;
-  const rows = end.map(v=>v).join('\n');
-  const blob = new Blob([header+rows], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href=url; a.download='mc_results.csv'; a.click();
-  setTimeout(()=>URL.revokeObjectURL(url), 1000);
-}
-
-// ---------- Arbitrage Split ----------
+// Arb & Hedge
 function calcArb(){
-  const a = parseFloat(document.getElementById('arbA').value);
-  const b = parseFloat(document.getElementById('arbB').value);
-  const stake = Math.max(0, parseFloat(document.getElementById('arbStake').value)||0);
-  const inv = (1/a) + (1/b);
-  const out = document.getElementById('arbOut');
-  if (inv < 1){
-    const sA = stake * ( (1/a) / inv );
-    const sB = stake * ( (1/b) / inv );
-    const retA = sA * a; const retB = sB * b; // both equal in perfect split
-    const profit = retA - stake;
-    out.innerText = `Arb found ✅\nSplit: £${fmt(sA,2)} on A, £${fmt(sB,2)} on B\nGuaranteed return: £${fmt(retA,2)}\nProfit: £${fmt(profit,2)} (${pct((retA/stake)-1)})`;
-  } else {
-    const edge = (1/inv) - 1; // negative or zero
-    out.innerText = `No arbitrage ❌\nCombined overround: ${pct(inv-1)} (edge ${pct(edge)})`;
-  }
+  const a=parseFloat(document.getElementById('arbA').value), b=parseFloat(document.getElementById('arbB').value), stake=Math.max(0,parseFloat(document.getElementById('arbStake').value)||0);
+  const inv=(1/a)+(1/b), out=document.getElementById('arbOut');
+  if(inv<1){ const sA=stake*((1/a)/inv), sB=stake*((1/b)/inv), retA=sA*a, profit=retA-stake; out.innerText=`Arb found ✅\nSplit: £${fmt(sA,2)} on A, £${fmt(sB,2)} on B\nGuaranteed return: £${fmt(retA,2)}\nProfit: £${fmt(profit,2)} (${pct((retA/stake)-1)})`; }
+  else { out.innerText=`No arbitrage ❌\nCombined overround: ${pct(inv-1)}`; }
 }
-
-// ---------- Hedge Calculator ----------
 function calcHedge(){
-  const oOdds = parseFloat(document.getElementById('hedgeOrigOdds').value);
-  const oStake = Math.max(0, parseFloat(document.getElementById('hedgeOrigStake').value)||0);
-  const live = parseFloat(document.getElementById('hedgeLiveOdds').value);
-  const targetEqualize = true; // simple mode: equalize outcomes
-  const winProfit = oStake*(oOdds-1);
-  // Stake hedge at live odds to equalize profit across outcomes
-  // Let H = hedge stake at odds L; if original wins, net = winProfit - H; if original loses, net = H*(L-1) - oStake
-  // Solve winProfit - H = H*(live-1) - oStake  => H = (winProfit + oStake) / live
-  const H = (winProfit + oStake) / live;
-  const netIfWin = winProfit - H;
-  const netIfLose = H*(live-1) - oStake;
-  const out = document.getElementById('hedgeOut');
-  out.innerText = `Hedge stake: £${fmt(H,2)} at ${live.toFixed(2)}\nNet if original WINS: £${fmt(netIfWin,2)}\nNet if original LOSES: £${fmt(netIfLose,2)}\n(Assumes perfect opposing market)`;
+  const oOdds=parseFloat(document.getElementById('hedgeOrigOdds').value), oStake=Math.max(0,parseFloat(document.getElementById('hedgeOrigStake').value)||0), live=parseFloat(document.getElementById('hedgeLiveOdds').value);
+  const winProfit=oStake*(oOdds-1), H=(winProfit+oStake)/live, netIfWin=winProfit-H, netIfLose=H*(live-1)-oStake;
+  document.getElementById('hedgeOut').innerText=`Hedge stake: £${fmt(H,2)} at ${live.toFixed(2)}\nNet if original WINS: £${fmt(netIfWin,2)}\nNet if original LOSES: £${fmt(netIfLose,2)}\n(Assumes perfect opposing market)`;
 }
 
-// ---------- Wire up ----------
-document.getElementById('calcEV').addEventListener('click', calcEVKelly);
-document.getElementById('runMC').addEventListener('click', runMonteCarlo);
-document.getElementById('csv').addEventListener('click', downloadCSV);
-document.getElementById('calcArb').addEventListener('click', calcArb);
-document.getElementById('calcHedge').addEventListener('click', calcHedge);
-
-// Toggle flat/kelly inputs
-const stSel = document.getElementById('mcStakeType');
-stSel.addEventListener('change', ()=>{
-  const isFlat = stSel.value==='flat';
-  document.getElementById('flatWrap').style.display = isFlat? 'block' : 'none';
-  document.getElementById('kellyWrap').style.display = isFlat? 'none' : 'block';
-});
-
-// ---------- Poisson Scoreline Model ----------
-function poisPMF(lambda, k){ if(lambda<=0){ return k===0?1:0;} return Math.exp(-lambda) * Math.pow(lambda, k) / fact(k); }
-const _factMemo = [1]; function fact(n){ if(_factMemo[n]!=null) return _factMemo[n]; let r=_factMemo[_factMemo.length-1], i=_factMemo.length; for(;i<=n;i++){ r*=i; _factMemo[i]=r; } return _factMemo[n]; }
-
+// Poisson
+const _factMemo=[1]; function fact(n){ if(_factMemo[n]!=null) return _factMemo[n]; let r=_factMemo[_factMemo.length-1], i=_factMemo.length; for(;i<=n;i++){ r*=i; _factMemo[i]=r } return _factMemo[n] }
+function poisPMF(lambda,k){ if(lambda<=0){ return k===0?1:0 } return Math.exp(-lambda)*Math.pow(lambda,k)/fact(k) }
 function runPoisson(){
-  const lamH = Math.max(0, parseFloat(document.getElementById('poisHome').value)||0);
-  const lamA = Math.max(0, parseFloat(document.getElementById('poisAway').value)||0);
-  const maxG = Math.max(4, parseInt(document.getElementById('poisMax').value,10)||8);
-  const topN = Math.max(1, parseInt(document.getElementById('poisTopN').value,10)||6);
-
-  const pH = [], pA = [];
-  for (let g=0; g<=maxG; g++){ pH[g]=poisPMF(lamH,g); pA[g]=poisPMF(lamA,g); }
-
-  let phw=0, pdr=0, paw=0, over25=0;
-  const lines = [];
-  for(let h=0; h<=maxG; h++){
-    for(let a=0; a<=maxG; a++){
-      const p = pH[h]*pA[a];
-      if (h>a) phw+=p; else if (h===a) pdr+=p; else paw+=p;
-      if (h+a > 2.5) over25+=p; // exact integral: sum for total>=3
-      lines.push({h,a,p});
-    }
-  }
-  lines.sort((x,y)=>y.p - x.p);
-  const top = lines.slice(0, topN).map((o,i)=>`${i+1}. ${o.h}-${o.a}  (${pct(o.p,2)})`).join('
-');
-
-  document.getElementById('poisHomeWin').textContent = pct(phw,2);
-  document.getElementById('poisDraw').textContent = pct(pdr,2);
-  document.getElementById('poisAwayWin').textContent = pct(paw,2);
-  document.getElementById('poisOver25').textContent = pct(over25,2);
-  document.getElementById('poisOut').textContent = `Top scorelines:
-${top}`;
+  const lamH=Math.max(0,parseFloat(document.getElementById('poisHome').value)||0), lamA=Math.max(0,parseFloat(document.getElementById('poisAway').value)||0);
+  const maxG=Math.max(4,parseInt(document.getElementById('poisMax').value,10)||8), topN=Math.max(1,parseInt(document.getElementById('poisTopN').value,10)||6);
+  const pH=[], pA=[]; for(let g=0;g<=maxG;g++){ pH[g]=poisPMF(lamH,g); pA[g]=poisPMF(lamA,g) }
+  let phw=0,pdr=0,paw=0,over25=0; const lines=[];
+  for(let h=0;h<=maxG;h++){ for(let a=0;a<=maxG;a++){ const p=pH[h]*pA[a]; if(h>a) phw+=p; else if(h===a) pdr+=p; else paw+=p; if(h+a>=3) over25+=p; lines.push({h,a,p}) } }
+  lines.sort((x,y)=>y.p-x.p); const top=lines.slice(0,topN).map((o,i)=>`${i+1}. ${o.h}-${o.a}  (${pct(o.p,2)})`).join('\n');
+  document.getElementById('poisHomeWin').textContent=pct(phw,2);
+  document.getElementById('poisDraw').textContent=pct(pdr,2);
+  document.getElementById('poisAwayWin').textContent=pct(paw,2);
+  document.getElementById('poisOver25').textContent=pct(over25,2);
+  document.getElementById('poisOut').textContent=`Top scorelines:\n${top}`;
 }
 
-// ---------- Normal / Overdispersion ----------
-function erf(x){ // Abramowitz & Stegun 7.1.26
-  const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
-  const sign = x<0?-1:1; const ax = Math.abs(x);
-  const t = 1/(1+p*ax);
-  const y = 1 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*Math.exp(-ax*ax);
-  return sign*y;
-}
-function stdNormCDF(z){ return 0.5*(1+erf(z/Math.SQRT2)); }
-function normCDF(x, mu, sigma){ if(sigma<=0) return x>=mu?1:0; return stdNormCDF((x-mu)/sigma); }
-function normQuantile(p, mu, sigma){ // Acklam inverse CDF approximation
-  if (p<=0) return -Infinity; if (p>=1) return Infinity;
+// Normal + overdispersion
+function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911; const sign=x<0?-1:1; const ax=Math.abs(x); const t=1/(1+p*ax); const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-ax*ax); return sign*y}
+function stdNormCDF(z){return 0.5*(1+erf(z/Math.SQRT2))}
+function normCDF(x,mu,sigma){if(sigma<=0) return x>=mu?1:0; return stdNormCDF((x-mu)/sigma)}
+function normQuantile(p,mu,sigma){ // Acklam’s inverse CDF (corrected)
+  if(p<=0) return -Infinity; if(p>=1) return Infinity;
   const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
   const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
   const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
   const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
-  let q, r;
-  if (p < 0.02425){ q=Math.sqrt(-2*Math.log(p)); return mu + sigma*((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
-  } else if (p > 1-0.02425){ q=Math.sqrt(-2*Math.log(1-p)); return mu - sigma*((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
-  } else { q=p-0.5; r=q*q; return mu + sigma*((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*q/( (((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1 ); }
+  let q,r,x;
+  if(p<0.02425){ q=Math.sqrt(-2*Math.log(p)); x=(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/(((((d[0]*q+d[1])*q+d[2])*q+d[3])*q)+1); }
+  else if(p>1-0.02425){ q=Math.sqrt(-2*Math.log(1-p)); x=-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/(((((d[0]*q+d[1])*q+d[2])*q+d[3])*q)+1); }
+  else { q=p-0.5; r=q*q; x=(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1); }
+  return mu + sigma * x;
 }
-
 function runNormal(){
-  const mu = parseFloat(document.getElementById('normMu').value);
-  const sigma = Math.max(0.0001, parseFloat(document.getElementById('normSigma').value));
-  const extraVar = Math.max(0, parseFloat(document.getElementById('normExtraVar').value)||0);
-  const t1 = parseFloat(document.getElementById('normT1').value);
-  const t2 = parseFloat(document.getElementById('normT2').value);
-  const sigmaEff = Math.sqrt(sigma*sigma + extraVar);
-
-  document.getElementById('normSigmaEff').textContent = fmt(sigmaEff,2);
-  const ge = 1 - normCDF(t1, mu, sigmaEff);
-  let between = NaN;
-  if (!isNaN(t1) && !isNaN(t2)){
-    const a = Math.min(t1,t2), b = Math.max(t1,t2);
-    between = normCDF(b, mu, sigmaEff) - normCDF(a, mu, sigmaEff);
-  }
-  document.getElementById('normGE').textContent = pct(ge,2);
-  document.getElementById('normBetween').textContent = isNaN(between)? '—' : pct(between,2);
-  const q5 = normQuantile(0.05, mu, sigmaEff), q50 = normQuantile(0.5, mu, sigmaEff), q95 = normQuantile(0.95, mu, sigmaEff);
-  document.getElementById('normQuants').textContent = `${fmt(q5,1)} / ${fmt(q50,1)} / ${fmt(q95,1)}`;
-  document.getElementById('normOut').textContent = `Inputs: μ=${fmt(mu,1)}, σ=${fmt(sigma,1)}, extraVar=${fmt(extraVar,1)} → σ_eff=${fmt(sigmaEff,2)}
-P(X≥${t1})=${pct(ge,2)}${isNaN(between)?'':` • P(${Math.min(t1,t2)}≤X≤${Math.max(t1,t2)})=${pct(between,2)}`}`;
+  const mu=parseFloat(document.getElementById('normMu').value);
+  const sigma=Math.max(0.0001,parseFloat(document.getElementById('normSigma').value));
+  const extraVar=Math.max(0,parseFloat(document.getElementById('normExtraVar').value)||0);
+  const t1=parseFloat(document.getElementById('normT1').value);
+  const t2=parseFloat(document.getElementById('normT2').value);
+  const sigmaEff=Math.sqrt(sigma*sigma + extraVar);
+  document.getElementById('normSigmaEff').textContent=fmt(sigmaEff,2);
+  const ge=1-normCDF(t1,mu,sigmaEff);
+  let between=NaN; if(!isNaN(t1)&&!isNaN(t2)){ const a=Math.min(t1,t2), b=Math.max(t1,t2); between=normCDF(b,mu,sigmaEff)-normCDF(a,mu,sigmaEff); }
+  document.getElementById('normGE').textContent=pct(ge,2);
+  document.getElementById('normBetween').textContent=isNaN(between)?'—':pct(between,2);
+  const q5=normQuantile(0.05,mu,sigmaEff), q50=normQuantile(0.5,mu,sigmaEff), q95=normQuantile(0.95,mu,sigmaEff);
+  document.getElementById('normQuants').textContent=`${fmt(q5,1)} / ${fmt(q50,1)} / ${fmt(q95,1)}`;
+  document.getElementById('normOut').textContent=`Inputs: μ=${fmt(mu,1)}, σ=${fmt(sigma,1)}, extraVar=${fmt(extraVar,1)} → σ_eff=${fmt(sigmaEff,2)}\nP(X≥${t1})=${pct(ge,2)}${isNaN(between)?'':` • P(${Math.min(t1,t2)}≤X≤${Math.max(t1,t2)})=${pct(between,2)}`}`;
 }
 
-// ---------- Wire new tools ----------
-document.getElementById('runPois').addEventListener('click', runPoisson);
-document.getElementById('runNorm').addEventListener('click', runNormal);
+// Wire-up
+document.getElementById('calcEV').addEventListener('click', calcEVKelly);
+document.getElementById('runMC').addEventListener('click', runMonteCarlo);
+document.getElementById('csv').addEventListener('click', function(){
+  if(!window._lastMC){ alert('Run a simulation first.'); return; }
+  const { end,trials,bets,odds,p,start,stakeType,flat,frac }=window._lastMC;
+  const header=`trials,bets,odds,p,start,stakeType,flat,frac\n${trials},${bets},${odds},${p},${start},${stakeType},${flat},${frac}\nvalue\n`;
+  const rows=end.join('\n'); const blob=new Blob([header+rows],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='mc_results.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+document.getElementById('calcArb').addEventListener('click', calcArb);
+document.getElementById('calcHedge').addEventListener('click', calcHedge);
+const stSel=document.getElementById('mcStakeType');
+stSel.addEventListener('change', ()=>{ const isFlat=stSel.value==='flat'; document.getElementById('flatWrap').style.display=isFlat?'block':'none'; document.getElementById('kellyWrap').style.display=isFlat?'none':'block'; });
 
-// initial calc
+// initial UI calc
 calcEVKelly();
 </script>
 </body>
